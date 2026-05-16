@@ -99,5 +99,5 @@ app.post('/api/leads', async (req, res) => {
 
 // ── Start Server ────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`🚀 Successmakerz backend running on port ${PORT}`);
+  console.log(`🚀 Successmakerz verify backend running on port ${PORT}`);
 });
