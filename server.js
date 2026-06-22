@@ -14,19 +14,39 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ── Middleware ──────────────────────────────────────────
+const allowedOrigins = [
+  'https://tour.nitish-devops.me',
+  'https://go.nitish-devops.me',
+  'http://localhost:3000'
+];
 app.use(cors({
-  origin: [
-    'http://successmakerz-frontend-alb-1864514614.ap-south-1.elb.amazonaws.com',
-    'https://successmakerz-frontend-alb-1864514614.ap-south-1.elb.amazonaws.com'
-  ],
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.startsWith('http://192.168.') ||
+      origin.startsWith('http://10.') ||
+      origin.startsWith('http://172.')
+    ) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS origin denied: ${origin}`));
+  },
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.options('*', cors());
-app.use(express.json());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
+app.use(express.json());
 // ── MongoDB Connection ──────────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/successmakerz';
 
@@ -80,9 +100,9 @@ app.post('/api/leads', async (req, res) => {
       message: 'Something went wrong. Please try WhatsApp instead.',
     });
   }
-});
+}); // server change
 
 // ── Start Server ────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`🚀 Successmakerz verify backend running on port ${PORT}`);
+  console.log(`🚀 Successmakerz backend running on port ${PORT}`);
 });
